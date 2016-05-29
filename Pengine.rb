@@ -32,7 +32,7 @@ class Pengine
 
   def initialize(builder)
     @po = builder.clone
-    @state = new PengineState
+    @state = PengineState.new
     @current_query = nil
     @slave_limit = -1
     @avail_output = []
@@ -71,6 +71,7 @@ class Pengine
       res.value
     end
   end
+  private :penginePost
 
   create(po)
     state.must_be_in(:not_created)
@@ -95,7 +96,7 @@ class Pengine
     end
 
     if(po.hasAsk())
-      @current_query = new Query(this, po.getAsk(), false)
+      @current_query = Query.new(self, po.getAsk(), false)
 
     if(resp.has_key?('answer'))
       handleAnswer(resp[:answer])
@@ -104,6 +105,7 @@ class Pengine
 
     return id;
   end
+  private :create
 
   handleAnswer(answer)
     if(answer.has_key?(:event))
@@ -141,6 +143,7 @@ class Pengine
       end
     end
   end
+  private :handleAnswer
 
   dumpStateDebug
     puts "#{@id} #{slave_limit}\n"
@@ -152,7 +155,143 @@ class Pengine
     @state.dumpDebugState
   end
 
+  ask(query)
+    @state.must_be_in(:idle)
+
+    if(@current_query != nil)
+      raise 'Have not extracted all answers from previous query (or stopped it)'
+    end
+
+    @current_query = Query.new(self, query, true)
+  end
+
+  #  Actually do the pengine protocol to perform an ask
+  # probably not what you want, see ask/1
+  #
+  # query the Query object
+  # ask the prolog query
+  doAsk(query, ask)
+    @state.must_be_in(:idle)
+
+    if(@current_query == nil)
+      @current_query = query
+    end
+
+    @state.setState(:ask)
+
+    answer = penginePost(
+      @po.getActualURL('send', self.getID())),
+      "application/x-prolog; charset=UTF-8",
+      @po.getRequestBodyAsk(self.getID(), ask))
+
+    handleAnswer(answer)
+  end
+
+  # signal me that the Query will not use the Pengine again
+  # not what you want
+  # query  the Query that has finished
+  iAmFinished(query)
+    if(query == @current_query)
+      @current_query = nil
+    end
+
+    state.setState(:idle)
+  end
+
+  #  Actually do the pengine protocol to perform a next
+  # probably not what you want, see ask/1
+  #
+  # query the Query object
+  doNext(query)
+    @state.must_be_in(:ask)
+
+    if(@current_query != query)
+      raise "Cannot advance more than one query - finish one before starting next"
+    end
+
+    answer = penginePost(
+      @po.getActualURL('send', self.getID())),
+      "application/x-prolog; charset=UTF-8",
+      @po.getRequestBodyNext)
+
+    handleAnswer(answer)
+  end
+
+  # return the Pengine ID. Rarely needed.
+  getID
+    @state.must_be_in(:ask, :idle)
+
+    return @id
+  end
+
+  # Destroy this pengine
+  destroy
+    if(@state.isIn(:destroyed))
+      return
+    end
+
+    @state.must_be_in(:ask, :idle)
+
+    begin
+      answer = penginePost(
+        @po.getActualURL('send', self.getID())),
+        "application/x-prolog; charset=UTF-8",
+        @po.getRequestBodyDestroy)
+
+      handleAnswer(answer)
+    ensure
+      @state.destroy
+    end
+  end
+
+  # low level protocol to support stop
+  # probably not what you want
+  doStop
+    @state.must_be_in(:ask)
+
+    answer = penginePost(
+      @po.getActualURL('send', self.getID())),
+      "application/x-prolog; charset=UTF-8",
+      @po.getRequestBodyNext)
+
+    handleAnswer(answer)
+  end
+
+
+  # low level protocol to support pull_response
+  # probably not what you want
+  doPullResponse
+    if(!@state.isIn(:ask) && !@state.isIn(:idle))
+      return
+    end
+
+    answer = penginePost(
+      @po.getActualURL('pull_response', self.getID())),
+      "application/x-prolog; charset=UTF-8",
+      @po.getRequestBodyPullResponse)
+
+    handleAnswer(answer)
+  end
+
+   # return one piece of pending output, if any.
+   # If it doesn't have any to return, it returns null
   
+   # @deprecated If you call it when the pengine's not got output it opens a connection that never closes, 
+   # so using this is definitely not recommended
 
+   # @return  output string from slave, or null
+   getOutput
+    if(!@avail_output.empty?)
+      return @avail_output.delete_at(0)
+    end
 
+    if(@state.isIn(:ask) || @state.isIn(:idle))
+      self.doPullResponse
+    end
+
+    if(!@avail_output.empty?)
+      return @avail_output.delete_at(0)
+    end
+
+    return nil  
 end

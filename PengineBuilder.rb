@@ -93,7 +93,7 @@ class PengineBuilder
   end
 
   def newPengine
-    return new Pengine(this)
+    return Pengine.newself)
   end
 
   def getRequestBodyNext
