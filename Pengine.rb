@@ -45,7 +45,7 @@ class Pengine
     return state.isIn(:destroyed)
   end
 
-  penginePost(
+  def penginePost(
     url,
     contentType,
     body
@@ -73,7 +73,7 @@ class Pengine
   end
   private :penginePost
 
-  create(po)
+  def create(po)
     state.must_be_in(:not_created)
 
     resp = penginePost(
@@ -107,7 +107,7 @@ class Pengine
   end
   private :create
 
-  handleAnswer(answer)
+  def handleAnswer(answer)
     if(answer.has_key?(:event))
       case answer[:event]
       when 'success'
@@ -145,7 +145,7 @@ class Pengine
   end
   private :handleAnswer
 
-  dumpStateDebug
+  def dumpStateDebug
     puts "#{@id} #{slave_limit}\n"
     if(@current_query != nil)
       current_query.dumpDebugState
@@ -155,7 +155,7 @@ class Pengine
     @state.dumpDebugState
   end
 
-  ask(query)
+  def ask(query)
     @state.must_be_in(:idle)
 
     if(@current_query != nil)
@@ -170,7 +170,7 @@ class Pengine
   #
   # query the Query object
   # ask the prolog query
-  doAsk(query, ask)
+  def doAsk(query, ask)
     @state.must_be_in(:idle)
 
     if(@current_query == nil)
@@ -190,7 +190,7 @@ class Pengine
   # signal me that the Query will not use the Pengine again
   # not what you want
   # query  the Query that has finished
-  iAmFinished(query)
+  def iAmFinished(query)
     if(query == @current_query)
       @current_query = nil
     end
@@ -202,7 +202,7 @@ class Pengine
   # probably not what you want, see ask/1
   #
   # query the Query object
-  doNext(query)
+  def doNext(query)
     @state.must_be_in(:ask)
 
     if(@current_query != query)
@@ -218,14 +218,14 @@ class Pengine
   end
 
   # return the Pengine ID. Rarely needed.
-  getID
+  def getID
     @state.must_be_in(:ask, :idle)
 
     return @id
   end
 
   # Destroy this pengine
-  destroy
+  def destroy
     if(@state.isIn(:destroyed))
       return
     end
@@ -246,7 +246,7 @@ class Pengine
 
   # low level protocol to support stop
   # probably not what you want
-  doStop
+  def doStop
     @state.must_be_in(:ask)
 
     answer = penginePost(
@@ -260,7 +260,7 @@ class Pengine
 
   # low level protocol to support pull_response
   # probably not what you want
-  doPullResponse
+  def doPullResponse
     if(!@state.isIn(:ask) && !@state.isIn(:idle))
       return
     end
@@ -280,7 +280,7 @@ class Pengine
    # so using this is definitely not recommended
 
    # @return  output string from slave, or null
-   getOutput
+  def getOutput
     if(!@avail_output.empty?)
       return @avail_output.delete_at(0)
     end
@@ -294,4 +294,7 @@ class Pengine
     end
 
     return nil  
+  end
+
+
 end
