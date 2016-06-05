@@ -28,7 +28,7 @@ class PengineBuilder
   attr_accessor :destroy
   attr_accessor :srctext
   attr_reader :format
-  attr_accessor :alias
+  attr_accessor :pengine_alias
 
   # Create the object
   def initialize(
@@ -38,7 +38,7 @@ class PengineBuilder
     chunk = 1,
     destroy = true,
     srctext = nil,
-    alias = nil)
+    pengine_alias = nil)
 
     @server = server
     @application = application
@@ -47,7 +47,7 @@ class PengineBuilder
     @destroy = destroy
     @srctext = srctext
     @format = "json"
-    @alias = alias
+    @pengine_alias = pengine_alias
   end
 
   # Internal method for package
@@ -59,7 +59,7 @@ class PengineBuilder
     end
   end
 
-  def getActualURL(action, id)
+  def getActualURLid(action, id)
     if @server.end_with? "/"
       return @server << action << "?format=json&id=" << URI.encode(id)
     else
@@ -74,15 +74,19 @@ class PengineBuilder
 
     if(@chunk > 1)
       h.store(:chunk, @chunk)
+    end
 
     if(@srctext != nil)
       h.store(:srctext, @srctext)
+    end
 
     if(@srcurl != nil)
       h.store(:srcurl, @srcurl)
+    end
 
     if(@ask != nil)
       h.store(:ask, @ask)
+    end
 
     return   JSON.dump(h)
   end
@@ -92,7 +96,7 @@ class PengineBuilder
   end
 
   def newPengine
-    return Pengine.newself)
+    return Pengine.new(self)
   end
 
   def getRequestBodyNext

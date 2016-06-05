@@ -2,6 +2,8 @@
 
 require 'json'
 require 'net/http'
+require './PengineState'
+
 # # Copyright (c) 2016 Simularity Inc.
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,12 +26,10 @@ require 'net/http'
 #
 
 class Pengine
-  po = nil
-  attr_reader: id
-  attr_reader: state
-  attr_reader: current_query
-  attr_reader: slave_limit
-  avail_output
+  attr_reader :id
+  attr_reader :state
+  attr_reader :current_query
+  attr_reader :slave_limit
 
   def initialize(builder)
     @po = builder.clone
@@ -37,9 +37,10 @@ class Pengine
     @current_query = nil
     @slave_limit = -1
     @avail_output = []
-    @id = create
+    @id = self.create()
     if(@id == nil)
       @state.destroy
+    end
   end
 
   def isDestroyed
@@ -51,7 +52,9 @@ class Pengine
     contentType,
     body
     )
+  puts url
     uri = URI(url)
+  puts uri
     req = Net::HTTP::Post.new(uri)
     req.body = body
     req.content_type = contentType
@@ -68,22 +71,24 @@ class Pengine
       result = res.body
       return(JSON.parse(result))
     else
-      // TODO figure out how to handle errors
+      # TODO figure out how to handle errors
       res.value
     end
   end
   private :penginePost
 
-  def create(po)
+# pray tell why cant I be called from initializer without
+  def create
     state.must_be_in(:not_created)
 
     resp = penginePost(
-      po.getActualURL('create'),
+      @po.getActualURL('create'),
       'application/json',
-      po.getRequestBodyCreate)
+      @po.getRequestBodyCreate)
 
     if(resp.has_key?(:slave_limit))
       @slave_limit = Integer(resp['slave_limit'])
+    end
 
     event = resp[:event]
 
@@ -96,17 +101,18 @@ class Pengine
       puts "event is illegal value #{event}"
     end
 
-    if(po.hasAsk())
+    if(@po.hasAsk())
       @current_query = Query.new(self, po.getAsk(), false)
+    end
 
     if(resp.has_key?('answer'))
       handleAnswer(resp[:answer])
+    end
 
     id = resp[:id]
 
     return id;
   end
-  private :create
 
   def handleAnswer(answer)
     if(answer.has_key?(:event))
@@ -164,6 +170,8 @@ class Pengine
     end
 
     @current_query = Query.new(self, query, true)
+
+    return @current_query
   end
 
   #  Actually do the pengine protocol to perform an ask
@@ -181,7 +189,7 @@ class Pengine
     @state.setState(:ask)
 
     answer = penginePost(
-      @po.getActualURL('send', self.getID())),
+      @po.getActualURLid('send', self.getID()),
       "application/x-prolog; charset=UTF-8",
       @po.getRequestBodyAsk(self.getID(), ask))
 
@@ -211,7 +219,7 @@ class Pengine
     end
 
     answer = penginePost(
-      @po.getActualURL('send', self.getID())),
+      @po.getActualURLid('send', self.getID()),
       "application/x-prolog; charset=UTF-8",
       @po.getRequestBodyNext)
 
@@ -220,7 +228,7 @@ class Pengine
 
   # return the Pengine ID. Rarely needed.
   def getID
-    @state.must_be_in(:ask, :idle)
+    @state.must_be_in_2(:ask, :idle)
 
     return @id
   end
@@ -231,11 +239,11 @@ class Pengine
       return
     end
 
-    @state.must_be_in(:ask, :idle)
+    @state.must_be_in_2(:ask, :idle)
 
     begin
       answer = penginePost(
-        @po.getActualURL('send', self.getID())),
+        @po.getActualURLid('send', self.getID()),
         "application/x-prolog; charset=UTF-8",
         @po.getRequestBodyDestroy)
 
@@ -251,7 +259,7 @@ class Pengine
     @state.must_be_in(:ask)
 
     answer = penginePost(
-      @po.getActualURL('send', self.getID())),
+      @po.getActualURLid('send', self.getID()),
       "application/x-prolog; charset=UTF-8",
       @po.getRequestBodyNext)
 
@@ -267,7 +275,7 @@ class Pengine
     end
 
     answer = penginePost(
-      @po.getActualURL('pull_response', self.getID())),
+      @po.getActualURLid('pull_response', self.getID()),
       "application/x-prolog; charset=UTF-8",
       @po.getRequestBodyPullResponse)
 
@@ -296,6 +304,6 @@ class Pengine
 
     return nil  
   end
-
-
 end
+
+

@@ -30,6 +30,7 @@ class Query
 
 		if(queryMaster)
 			p.doAsk(self, ask)
+		end
 	end
 
 	def next
