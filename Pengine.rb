@@ -204,7 +204,9 @@ puts event
       @current_query = nil
     end
 
-    state.setState(:idle)
+    if(@state == :ask)
+      @state.setState(:idle)
+    end
   end
 
   #  Actually do the pengine protocol to perform a next

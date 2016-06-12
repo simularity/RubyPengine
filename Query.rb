@@ -50,13 +50,13 @@ class Query
 		end
 
 		# try to get more from server
-		@p.doNext
+		@p.doNext(self)
 
 		# try to get more from server
 		if(!@availProofs.empty?)
 			data = @availProofs.delete_at(0)
 
-			if(!@hasMore && availProofs.empty?)
+			if(!@hasMore && @availProofs.empty?)
 				@p.iAmFinished(self)
 			end
 
