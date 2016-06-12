@@ -89,8 +89,6 @@ class Pengine
     end
 
     event = resp['event']
-puts resp
-puts event
 
     case event
     when 'destroy'
@@ -123,7 +121,7 @@ puts event
         end
 
         if(answer.has_key?('more'))
-          if(answer['more'] == 'false')
+          if(answer['more'] == false)
             @current_query.noMore()
           end
         end
@@ -140,7 +138,7 @@ puts event
       when 'failure'
         @current_query.noMore()
       when 'error'
-        raise 'Syntax error - probably invalid Prolog query'
+        raise "Syntax error  - probably invalid Prolog query #{answer}"
       when 'output'
         @avail_output + answer['data']
       when 'died'
@@ -153,6 +151,7 @@ puts event
   private :handleAnswer
 
   def dumpStateDebug
+    puts '*****'
     puts "#{@id} #{slave_limit}\n"
     if(@current_query != nil)
       current_query.dumpDebugState
@@ -160,6 +159,7 @@ puts event
 
     @po.dumpDebugState
     @state.dumpDebugState
+    puts '******'
   end
 
   def ask(query)

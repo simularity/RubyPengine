@@ -38,7 +38,7 @@ class Query
 			data = @availProofs.delete_at(0)
 
 			if(!@hasMore && availProofs.empty?)
-				p.iAmFinished(self)
+				@p.iAmFinished(self)
 			end
 
 			return data

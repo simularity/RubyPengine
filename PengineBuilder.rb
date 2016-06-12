@@ -50,6 +50,19 @@ class PengineBuilder
     @pengine_alias = pengine_alias
   end
 
+  def dumpDebugState
+    puts '----------'
+    puts @server
+    puts @application
+    puts @ask
+    puts @chunk
+    puts @destroy
+    puts @srctext
+    puts @format
+    puts @pengine_alias
+    puts '---------'
+  end
+
   # Internal method for package
   def getActualURL(action)
     if @server.end_with? "/"
@@ -60,7 +73,7 @@ class PengineBuilder
   end
 
   def getActualURLid(action, id)
-    
+
     if @server.end_with? "/"
       return @server + "pengine/" + action + "?format=json&id=" + URI.encode(id)
     else

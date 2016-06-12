@@ -40,4 +40,36 @@ if __FILE__ == $0
 			puts answer
 		end
 	end
+
+	p = po.newPengine
+	q = p.ask('member(X, [a(taco),2,c])')
+
+	while(q.hasNext())
+		answer = q.next 
+		if(answer != nil)
+			puts answer
+		end
+	end
+
+	po.destroy = false
+	p = po.newPengine
+	q = p.ask('member(X, [d,e,f])')
+
+	while(q.hasNext())
+		answer = q.next 
+		if(answer != nil)
+			puts answer
+		end
+	end
+	
+	q = p.ask('member(X, [g,h,i])')
+
+	while(q.hasNext())
+		answer = q.next 
+		if(answer != nil)
+			puts answer
+		end
+	end
+
+
 end

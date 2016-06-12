@@ -74,4 +74,8 @@ class PengineState
 			raise "illegal state transition from #{@state} to #{newState}"
 		end
 	end
+
+	def dumpDebugState
+		puts @state
+	end
 end
