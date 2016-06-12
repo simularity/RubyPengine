@@ -1,3 +1,5 @@
+#~/usr/bin/env ruby -w
+
 require './PengineBuilder'
 require './Pengine'
 require './Query'

@@ -48,14 +48,12 @@ class Pengine
   end
 
   def penginePost(
-    url,
+    url,                 # a string
     contentType,
     body
     )
-  puts url
-    uri = URI(url)
-  puts uri
-    req = Net::HTTP::Post.new(uri)
+    uri = URI::parse(url)
+    req = Net::HTTP::Post.new(url)
     req.body = body
     req.content_type = contentType
     req['User-Agent'] = 'RubyPengine'
@@ -86,17 +84,19 @@ class Pengine
       'application/json',
       @po.getRequestBodyCreate)
 
-    if(resp.has_key?(:slave_limit))
+    if(resp.has_key?('slave_limit'))
       @slave_limit = Integer(resp['slave_limit'])
     end
 
-    event = resp[:event]
+    event = resp['event']
+puts resp
+puts event
 
     case event
     when 'destroy'
-      state.setState(:destroyed)
+      @state.setState(:destroyed)
     when 'create'
-      state.setState(:idle)
+      @state.setState(:idle)
     else
       puts "event is illegal value #{event}"
     end
@@ -106,30 +106,30 @@ class Pengine
     end
 
     if(resp.has_key?('answer'))
-      handleAnswer(resp[:answer])
+      handleAnswer(resp['answer'])
     end
 
-    id = resp[:id]
+    id = resp['id']
 
     return id;
   end
 
   def handleAnswer(answer)
-    if(answer.has_key?(:event))
-      case answer[:event]
+    if(answer.has_key?('event'))
+      case answer['event']
       when 'success'
-        if(answer.has_key?(:data))
-          @current_query.addNewData(answer[:data])
+        if(answer.has_key?('data'))
+          @current_query.addNewData(answer['data'])
         end
 
-        if(answer.has_key?(:more))
-          if(answer[:more] == 'false')
+        if(answer.has_key?('more'))
+          if(answer['more'] == 'false')
             @current_query.noMore()
           end
         end
       when 'destroy'
-        if(answer.has_key?(:data))
-          handleAnswer(answer[:data])
+        if(answer.has_key?('data'))
+          handleAnswer(answer['data'])
         end
 
         if(@current_query != nil)
@@ -142,11 +142,11 @@ class Pengine
       when 'error'
         raise 'Syntax error - probably invalid Prolog query'
       when 'output'
-        @avail_output << answer[:data]
+        @avail_output + answer['data']
       when 'died'
         @state.setState(:destroyed)
       else
-        raise "Bad event #{answer[:event]}in answer"
+        raise "Bad event #{answer['event']}in answer"
       end
     end
   end

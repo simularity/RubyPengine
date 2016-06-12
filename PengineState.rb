@@ -59,4 +59,19 @@ class PengineState
 		end
 	end
 
+	def setState(newState)
+		if(self == newState)
+			return
+		end
+
+		if(
+			(@state == :not_created && (newState == :idle || newState == :ask || newState == :destroyed)) ||
+			(@state == :idle && (newState == :ask || newState == :destroyed)) ||
+			(@state == :ask && (newState == :idle || newState == :destroyed))
+			)
+			@state = newState
+		else
+			raise "illegal state transition from #{@state} to #{newState}"
+		end
+	end
 end

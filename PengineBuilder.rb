@@ -53,17 +53,18 @@ class PengineBuilder
   # Internal method for package
   def getActualURL(action)
     if @server.end_with? "/"
-      return @server << action
+      return @server + "pengine/" + action
     else
-      return @server << "/" << action
+      return @server + "/pengine/" + action
     end
   end
 
   def getActualURLid(action, id)
+    
     if @server.end_with? "/"
-      return @server << action << "?format=json&id=" << URI.encode(id)
+      return @server + "pengine/" + action + "?format=json&id=" + URI.encode(id)
     else
-      return @server << "/" << action << "?format=json&id=" << URI.encode(id)
+      return @server + "/pengine/" + action + "?format=json&id=" + URI.encode(id)
     end
   end
 

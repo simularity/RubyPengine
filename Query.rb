@@ -29,7 +29,7 @@ class Query
 		@availProofs = []
 
 		if(queryMaster)
-			p.doAsk(self, ask)
+			@p.doAsk(self, ask)
 		end
 	end
 
