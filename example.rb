@@ -160,5 +160,6 @@ if __FILE__ == $0
 		end
 	end
 
+# TODO test stop
 
 end
