@@ -78,4 +78,8 @@ class PengineState
 	def dumpDebugState
 		puts @state
 	end
+
+	def destroy
+		@state = :destroyed
+	end
 end

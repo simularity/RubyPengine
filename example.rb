@@ -61,7 +61,7 @@ if __FILE__ == $0
 			puts answer
 		end
 	end
-	
+
 	q = p.ask('member(X, [g,h,i])')
 
 	while(q.hasNext())
@@ -70,6 +70,79 @@ if __FILE__ == $0
 			puts answer
 		end
 	end
+
+	p.destroy
+
+	begin
+		q = p.ask('member(X, [w,x,y])')
+	rescue Object
+		puts "should be 'Pengine not in state idle, is in destroyed' " + $!.to_s
+	end
+
+	po.chunk = 3
+	po.destroy = true
+
+	p = po.newPengine
+
+	q = p.ask('member(X, [a,b,c,d,e])')
+
+	while(q.hasNext())
+		answer = q.next 
+		if(answer != nil)
+			puts answer
+		end
+	end
+
+	po.destroy = false
+
+	p = po.newPengine
+
+	q = p.ask('member(X, [a,b,c,d,e,f])')
+
+	while(q.hasNext())
+		answer = q.next 
+		if(answer != nil)
+			puts answer
+		end
+	end
+
+	q = p.ask('member(X, [g,h,i,j,k])')
+
+	while(q.hasNext())
+		answer = q.next 
+		if(answer != nil)
+			puts answer
+		end
+	end
+
+	p.destroy 
+
+	po.destroy = false
+
+	n = 0
+	while(n < 5)
+		n = n + 1
+
+		p = po.newPengine
+
+		q = p.ask('member(X, [a,b,c,d,e,f])')
+
+		i = 4
+		while(q.hasNext() && i < 5)
+			answer = q.next 
+			i = i + 1
+			if(answer != nil)
+				puts answer
+			end
+		end	
+
+		begin
+			q = p.ask('length([a,b,c], X)')
+		rescue Object
+			puts "should be ' Pengine not in state idle, is in ask' " + $!.to_s
+		end
+	end
+
 
 
 end
