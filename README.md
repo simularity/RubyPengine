@@ -150,11 +150,11 @@ We really didn't ask for the position, we just wanted the name. So we can put an
 
 ### Strings
 
-Notice that Bob's name is an atom.  Prolog also has "real strings", and "codes strings". All get converted to Ruby Strings.
+Notice that Bob's name is an atom.  Prolog also has "real strings" (in double quotes), and "codes strings" (in backticks). All get converted to Ruby Strings.
 
 ### Nondeterminism
 
-Now, if we happen to have two Bob Smiths in the company?  We'll get two rows of data. If there is no Bob Smith, we'll get no data. So Queries always return an iterator.
+Now, if we happen to have two Bob Smiths in the company?  We'll get two rows of data. If there is no Bob Smith, we'll get no data. So Queries are an an iterator.
 
 One tricky bit about this.  Prolog returns all the ways it can 'prove' the employee info is true. This sometimes means it will return multiple copies of a single answer. If you need rows to be distinct, work with the Prolog programmer.
 
@@ -173,8 +173,6 @@ The commas mean 'and' in this context. You can use another predicate as well. Sa
 ---
 
 Notice, as an aside, that marketing is an atom. 
-
-
 
 ## License
 
