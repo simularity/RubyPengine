@@ -1,4 +1,4 @@
-# rubypengines
+# RubyPengines
 
 A Ruby language client for Torbjörn Lager's _Pengines_ distributed computing library for
 _[SWI-Prolog](http://swi-prolog.org)_ .
