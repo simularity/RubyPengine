@@ -94,20 +94,25 @@ class Pengine
     when 'destroy'
       @state.setState(:destroyed)
     when 'create'
-      @state.setState(:idle)
+      if(@po.hasAsk())
+        @state.setState(:idle)
+        @state.setState(:ask)
+      else
+        @state.setState(:idle)
+      end
     else
       puts "event is illegal value #{event}"
     end
 
     if(@po.hasAsk())
-      @current_query = Query.new(self, po.getAsk(), false)
+      @current_query = Query.new(self, @po.ask, false)
     end
 
     if(resp.has_key?('answer'))
       handleAnswer(resp['answer'])
     end
 
-    id = resp['id']
+    @id = resp['id']
 
     return id;
   end

@@ -37,7 +37,7 @@ class Query
 		if(!@availProofs.empty?)
 			data = @availProofs.delete_at(0)
 
-			if(!@hasMore && availProofs.empty?)
+			if(!@hasMore && @availProofs.empty?)
 				@p.iAmFinished(self)
 			end
 
@@ -74,7 +74,7 @@ class Query
 		@hasMore = false
 
 		if(@availProofs.empty?)
-			@p.iAmFinished
+			@p.iAmFinished(self)
 		end
 
 		# we might be held externally, waiting to deliver last Proof or no-more-Proof result

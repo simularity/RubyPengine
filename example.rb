@@ -143,6 +143,22 @@ if __FILE__ == $0
 		end
 	end
 
+	p.destroy 
+
+# the most efficient way
+	po.destroy = true
+	po.ask = 'member(X, [a,b,c,d,e,f])'
+
+	p = po.newPengine
+
+	q = p.current_query
+
+	while(q.hasNext())
+		answer = q.next 
+		if(answer != nil)
+			puts answer
+		end
+	end
 
 
 end
